@@ -1,7 +1,11 @@
 const mongosee = require("mongoose");
-const app = require("./app");
+const { app } = require("./app");
 const port = process.env.PORT || 3001;
 const { PORT_DB, IP_SERVER } = require("./config");
+const { API_VERSION } = require("./config");
+
+const appRouteName = `/api/${API_VERSION}`;
+require("./routes")(app, appRouteName);
 
 mongosee.connect(
  `mongodb://${IP_SERVER}:${PORT_DB}/melaradb`,
