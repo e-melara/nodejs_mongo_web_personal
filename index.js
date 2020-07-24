@@ -1,13 +1,23 @@
-const mongosee = require("mongoose");
-const { app } = require("./app");
-const port = process.env.PORT || 3001;
-const { PORT_DB, IP_SERVER } = require("./config");
-const { API_VERSION } = require("./config");
+const cors = require("cors");
+const morgan = require("morgan");
+const express = require("express");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const { PORT_DB, IP_SERVER, API_VERSION } = require("./config");
 
+const app = express();
+const port = process.env.PORT || 3001;
 const appRouteName = `/api/${API_VERSION}`;
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(morgan("combined"));
+app.use(bodyParser.json());
+app.use(bodyParser.raw());
+app.use(cors());
+
 require("./routes")(app, appRouteName);
 
-mongosee.connect(
+mongoose.connect(
  `mongodb://${IP_SERVER}:${PORT_DB}/melaradb`,
  { useNewUrlParser: true, useUnifiedTopology: true },
  err => {
@@ -21,3 +31,5 @@ mongosee.connect(
   }
  }
 );
+
+// require("./routes")(app, appRouteName);
