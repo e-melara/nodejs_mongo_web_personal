@@ -1,14 +1,14 @@
 const bcrypt = require("bcrypt-node");
 const User = require("../models/users");
+const jwt = require("../services/jwt");
 
 function signUp(req, res) {
  const user = new User();
- console.log(req.body);
  const { email, password, repeatPassword, name, lastname } = req.body;
 
  user.name = name;
  user.lastname = lastname;
- user.email = email;
+ user.email = email.toLowerCase();
  user.role = "admin";
  user.active = false;
 
@@ -38,6 +38,37 @@ function signUp(req, res) {
  }
 }
 
+function signIn(req, res) {
+ const { email, password } = req.body;
+ User.findOne({ email: email.toLowerCase() }, (err, userStored) => {
+  if (err) {
+   res.status(500).send({ message: "Error del servidor" });
+  } else {
+   if (!userStored) {
+    res.status(500).send({ message: "Usuario no encontrado" });
+   } else {
+    bcrypt.compare(password, userStored.password, (err, checked) => {
+     if (err) {
+      res.status(500).send({ message: "Error del servidor" });
+     } else {
+      if (!userStored.active) {
+       res.status(500).send({ message: "El usuario no se ha activado" });
+      } else if (!checked) {
+       res.status(404).send({ message: "La contraseña es incorrecta" });
+      } else {
+       res.status(200).send({
+        accessToken: jwt.createAccessToken(userStored),
+        refreshToken: jwt.createRefreshToken(userStored)
+       });
+      }
+     }
+    });
+   }
+  }
+ });
+}
+
 module.exports = {
- signUp
+ signUp,
+ signIn
 };
