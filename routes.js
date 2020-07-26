@@ -1,6 +1,7 @@
-const UserController = require("./controllers/user");
+const UserRoute = require("./routes/user");
+const AuthRoute = require("./routes/auth");
 
 module.exports = (app, name) => {
- app.use(`${name}/sign-up`, UserController.signUp);
- app.use(`${name}/sign-in`, UserController.signIn);
+ app.use(`${name}/users`, UserRoute);
+ app.use(`${name}/auth`, AuthRoute);
 };
