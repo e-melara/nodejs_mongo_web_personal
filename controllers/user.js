@@ -14,7 +14,7 @@ function signUp(req, res) {
 
  if (!password || !repeatPassword) {
   res.status(404).send({
-   message: "Las contraseña son obligatorias"
+   message: "Las contraseña son obligatorias",
   });
  } else {
   bcrypt.hash(password, null, null, function (err, hash) {
@@ -24,6 +24,7 @@ function signUp(req, res) {
     user.password = hash;
     user.save((err, userStored) => {
      if (err) {
+      console.log(err);
       res.status(500).send({ message: "Error del servidor" });
      } else {
       if (!userStored) {
@@ -58,7 +59,7 @@ function signIn(req, res) {
       } else {
        res.status(200).send({
         accessToken: jwt.createAccessToken(userStored),
-        refreshToken: jwt.createRefreshToken(userStored)
+        refreshToken: jwt.createRefreshToken(userStored),
        });
       }
      }
@@ -68,7 +69,21 @@ function signIn(req, res) {
  });
 }
 
+function getUsers(_, res) {
+ User.find().then(
+  function (users) {
+   res.status(200).json({ users });
+  },
+  function () {
+   res
+    .status(404)
+    .json({ status: 404, message: "No hay usuarios por el momento" });
+  }
+ );
+}
+
 module.exports = {
  signUp,
- signIn
+ signIn,
+ getUsers,
 };
